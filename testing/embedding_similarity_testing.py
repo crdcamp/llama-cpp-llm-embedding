@@ -40,6 +40,7 @@ for key, value in first_doc_embeddings.items():
 first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
 second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
 
+print(first_vec.shape, "\n", second_vec.shape)
 
 # %% Cosine Similarity
 # Compare the cosine similarity between the two embedded documents
