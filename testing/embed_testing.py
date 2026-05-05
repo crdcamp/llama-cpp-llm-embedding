@@ -3,12 +3,12 @@ from llama_cpp import Llama
 
 # %% Model
 llm = Llama(
-    model_path="models/Qwen3-Embedding-8B-Q6_K.gguf",
+    model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
-    n_ctx=20480,)
+    n_ctx=40960,)
 
 # %% Open one file for single document embedding
-first_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+first_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
 with open(first_doc, 'r', encoding='utf-8') as f:
     first_doc_content = f.read()
 
@@ -23,7 +23,7 @@ print(embeddings)
 
 
 # %% Read second document
-second_doc = "data/summary/httpsblogapifycomwhatisavectordatabase.md"
+second_doc = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
 with open(second_doc, 'r', encoding='utf-8') as f2:
     second_doc_content = f2.read()
 
