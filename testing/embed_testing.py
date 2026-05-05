@@ -26,6 +26,3 @@ print(type(second_doc_content))
 
 # %% Multiple document embedding
 embeddings = llm.create_embedding([first_doc_content, second_doc_content])
-
-# %% Comparing Embedding Similarity
-# Resource: https://medium.com/thinking-sand/embedding-similarity-explained-how-to-measure-text-semantics-2932a0d899c9
