@@ -2,8 +2,6 @@
 # %% Imports
 from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
-import os
-import json
 import numpy as np
 
 # %% Model
