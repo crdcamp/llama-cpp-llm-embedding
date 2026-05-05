@@ -17,11 +17,6 @@ print(type(first_doc_content))
 # %% Create single document embedding
 embeddings = llm.create_embedding(first_doc_content)
 
-# %% Inspect
-print(type(embeddings))
-print(embeddings)
-
-
 # %% Read second document
 second_doc = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
 with open(second_doc, 'r', encoding='utf-8') as f2:
@@ -32,5 +27,5 @@ print(type(second_doc_content))
 # %% Multiple document embedding
 embeddings = llm.create_embedding([first_doc_content, second_doc_content])
 
-# %% Inspect
-print(type(embeddings))
+# %% Comparing Embedding Similarity
+# Resource: https://medium.com/thinking-sand/embedding-similarity-explained-how-to-measure-text-semantics-2932a0d899c9

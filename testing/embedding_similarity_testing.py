@@ -4,6 +4,7 @@ from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import json
+import numpy as np
 
 # %% Model
 llm = Llama(
@@ -24,11 +25,21 @@ second_doc_embeddings = llm.create_embedding(second_doc_str)
 
 # %% Inspect embeddings type
 print(type(first_doc_embeddings), "\n", type(second_doc_embeddings))
-# %% Save dictionaries to inspect dict structure
+# %% Save to inspect dict structure
 os.makedirs("embeddings", exist_ok=True)
 with open('embeddings/first_doc_embeddings_dict.json', 'w') as dict1, open('embeddings/second_doc_embeddings_dict.json', 'w') as dict2:
     json.dump(first_doc_embeddings, dict1)
     json.dump(second_doc_embeddings, dict2)
+
+# %% Inspect dict key structure
+# We want to target `data`
+for key, value in first_doc_embeddings.items():
+    print(key)
+
+# %% Convert embeddings to arrays
+first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
+second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
+
 
 # %% Cosine Similarity
 # Compare the cosine similarity between the two embedded documents
