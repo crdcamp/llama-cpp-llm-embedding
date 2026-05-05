@@ -11,7 +11,9 @@ context_length = 40960
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
-    n_ctx=context_length)
+    n_ctx=context_length,
+    n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512, and encode the text using batches instead
+)
 
 # %% Read documents
 first_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
@@ -26,11 +28,6 @@ second_doc_embeddings = llm.create_embedding(second_doc_str)
 
 # %% Inspect embeddings type
 print(type(first_doc_embeddings), "\n", type(second_doc_embeddings))
-# %% Save to inspect dict structure
-os.makedirs("embeddings", exist_ok=True)
-with open('embeddings/first_doc_embeddings_dict.json', 'w') as dict1, open('embeddings/second_doc_embeddings_dict.json', 'w') as dict2:
-    json.dump(first_doc_embeddings, dict1)
-    json.dump(second_doc_embeddings, dict2)
 
 # %% Inspect dict key structure
 # We want to target `data`
@@ -46,11 +43,9 @@ first_doc_tok_usage = first_doc_embeddings['usage']['total_tokens']
 second_doc_tok_usage = second_doc_embeddings['usage']['total_tokens']
 
 if first_doc_tok_usage > context_length or second_doc_tok_usage > context_length:
-    print("Context window length: EXCEEDED")
+    print("Context window: EXCEEDED")
 else:
-    print("Context window length: NOT EXCEEDED")
-
-
+    print("Context window: NOT EXCEEDED")
 
 # %% Convert embeddings to arrays
 # Using list comprehension for later. Not necessary here
@@ -63,3 +58,7 @@ print(first_vec.shape, "\n", second_vec.shape)
 # Compare the cosine similarity between the two embedded documents
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
+
+# %% Dot Product Similarity
+
+# %% Euclidean Distance Similarity
