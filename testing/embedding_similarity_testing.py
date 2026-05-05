@@ -7,10 +7,11 @@ import json
 import numpy as np
 
 # %% Model
+context_length = 40960
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
-    n_ctx=40960,)
+    n_ctx=context_length)
 
 # %% Read documents
 first_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
@@ -36,11 +37,26 @@ with open('embeddings/first_doc_embeddings_dict.json', 'w') as dict1, open('embe
 for key, value in first_doc_embeddings.items():
     print(key)
 
+# %% Verify that token usage doesn't exceed context window
+print("First doc embeddings usage: ", first_doc_embeddings['usage']['total_tokens'])
+print("Second doc embeddings usage: ", second_doc_embeddings['usage']['total_tokens'])
+print("Context length: ", context_length, "\n")
+
+first_doc_tok_usage = first_doc_embeddings['usage']['total_tokens']
+second_doc_tok_usage = second_doc_embeddings['usage']['total_tokens']
+
+if first_doc_tok_usage > context_length or second_doc_tok_usage > context_length:
+    print("Context window length: EXCEEDED")
+else:
+    print("Context window length: NOT EXCEEDED")
+
+
+
 # %% Convert embeddings to arrays
+# Using list comprehension for later. Not necessary here
 first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
 second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
 
-print(first_vec)
 print(first_vec.shape, "\n", second_vec.shape)
 
 # %% Cosine Similarity
