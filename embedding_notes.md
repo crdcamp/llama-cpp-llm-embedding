@@ -30,11 +30,51 @@ From the [llama.cpp GitHub](https://github.com/ggml-org/llama.cpp/tree/master/ex
 ./llama-embedding -m ./path/to/model --pooling mean --log-disable -p "Hello World!" 2>/dev/null
 ```
 
+# llama.cpp Docs
+
+From [this link](https://llama-cpp-python.readthedocs.io/en/latest/#embeddings).
+
+## Speculative Decoding
+
+`llama-cpp-python` supports speculative decoding which allows the model to generate completions based on a draft model.
+
+The fastest way to use speculative decoding is through the LlamaPromptLookupDecoding class.
+
+Just pass this as a draft model to the Llama class during initialization.
+
+```python
+from llama_cpp import Llama
+from llama_cpp.llama_speculative import LlamaPromptLookupDecoding
+
+llama = Llama(
+    model_path="path/to/model.gguf",
+    draft_model=LlamaPromptLookupDecoding(num_pred_tokens=10) # num_pred_tokens is the number of tokens to predict 10 is the default and generally good for gpu, 2 performs better for cpu-only machines.
+)
+```
+
+## Embeddings
+
+To generate text embeddings use `create_embedding` or `embed`. Note that you must pass `embedding=True` to the constructor upon model creation for these to work properly.
+
+```python
+import llama_cpp
+
+llm = llama_cpp.Llama(model_path="path/to/model.gguf", embedding=True)
+
+embeddings = llm.create_embedding("Hello, world!")
+
+# or create multiple embeddings at once
+
+embeddings = llm.create_embedding(["Hello, world!", "Goodbye, world!"])
+```
+
 # Qwen3 Embedding
 
 ## Sentence Transformers Usage
 
 From [Qwen3 Embedding model page](https://huggingface.co/Qwen/Qwen3-Embedding-8B#sentence-transformers-usage)
+
+**Note:** This will not work with GGUF file formats, but serves as a good outline.
 
 ```python
 # Requires transformers>=4.51.0
