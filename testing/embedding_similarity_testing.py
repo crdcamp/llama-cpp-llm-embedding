@@ -10,7 +10,7 @@ llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
     n_ctx=context_length,
-    n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512, and encode the text using batches instead
+    n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
 
 # %% Read documents
@@ -53,10 +53,16 @@ second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data
 print(first_vec.shape, "\n", second_vec.shape)
 
 # %% Cosine Similarity
+"""
+Use this resource to calculate cosine similarity among all the vectors:
+    https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
+
+    Example:
+        calculate the entire cosie similarity matrix among X, Y, and Z
+        `cos_sim = cosine_similarity([X, Y, Z])`
+"""
 # Compare the cosine similarity between the two embedded documents
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
 
-# %% Dot Product Similarity
-
-# %% Euclidean Distance Similarity
+# %% Embedding all documents
