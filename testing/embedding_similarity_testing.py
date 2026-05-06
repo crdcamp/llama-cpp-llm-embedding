@@ -78,19 +78,22 @@ for file in os.listdir(docs_dir):
     path = os.path.join(docs_dir, file)
     start_time = time.perf_counter()
 
-    with open(path, 'r', encoding='utf-8') as f:
-        print(f"Processing file: {file}")
-        content = f.read()
-        embedding = llm.create_embedding(content)
-        embedding_token_usage = embedding['usage']['total_tokens']
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            print(f"Processing file: {file}")
+            content = f.read()
+            embedding = llm.create_embedding(content)
+            embedding_token_usage = embedding['usage']['total_tokens']
 
-        if embedding_token_usage <= context_length:
-            embedding_vector = np.array([item['embedding'] for item in embedding['data']])
-            print(f"{file} successfully converted to vector")
+            if embedding_token_usage <= context_length:
+                embedding_vector = np.array([item['embedding'] for item in embedding['data']])
+                print(f"{file} successfully converted to vector")
 
-        else:
-            print(f"Error - Embedding exceeded context length: {embedding_token_usage} > {context_length}. Skipping...")
-            continue
+            else:
+                print(f"Error - Embedding exceeded context length: {embedding_token_usage} > {context_length}. Skipping...")
+
+    except Exception as e:
+        print(f"Failed to process {file}: {e}")
 
     end_time = time.perf_counter()
     total_time = end_time - start_time
