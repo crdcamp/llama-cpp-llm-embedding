@@ -78,7 +78,7 @@ for file in os.listdir(docs_dir):
     path = os.path.join(docs_dir, file)
     start_time = time.perf_counter()
 
-    with open(path, 'r', encoding='urf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         print(f"Processing file: {file}")
         content = f.read()
         embedding = llm.create_embedding(content)
