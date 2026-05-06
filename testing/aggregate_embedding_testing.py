@@ -19,6 +19,9 @@ llm = Llama(
 THIS DESPARATELY NEEDS A FUNCTION TO SPLIT
 THE PROCESSING INTO CHUNKS
 """
+# %% Embedding all documents and calculating cosine similarity
+docs_dir = "../data/summary"
+times = []
 for file in os.listdir(docs_dir):
     if not file.endswith('.md'):
         continue
