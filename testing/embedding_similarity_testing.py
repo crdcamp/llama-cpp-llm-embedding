@@ -3,6 +3,8 @@
 from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import os
+import time
 
 # %% Model
 context_length = 40960
@@ -46,7 +48,7 @@ else:
     print("Context window: NOT EXCEEDED")
 
 # %% Convert embeddings to arrays
-# Using list comprehension for later. Not necessary here
+# Using list comprehension for later. Not necessary here when we're dealing with single documents
 first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
 second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
 
@@ -65,4 +67,35 @@ Use this resource to calculate cosine similarity among all the vectors:
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
 
-# %% Embedding all documents
+# %% Embedding all documents and calculating cosine similarity
+docs_dir = "../data/summary"
+times = []
+
+for file in os.listdir(docs_dir):
+    if not file.endswith('.md'):
+        continue
+
+    path = os.path.join(docs_dir, file)
+    start_time = time.perf_counter()
+
+    with open(path, 'r', encoding='urf-8') as f:
+        print(f"Processing file: {file}")
+        content = f.read()
+        embedding = llm.create_embedding(content)
+        embedding_token_usage = embedding['usage']['total_tokens']
+
+        if embedding_token_usage <= context_length:
+            embedding_vector = np.array([item['embedding'] for item in embedding['data']])
+            print(f"{file} successfully converted to vector")
+
+        else:
+            print(f"Error - Embedding exceeded context length: {embedding_token_usage} > {context_length}. Skipping...")
+            continue
+
+    end_time = time.perf_counter()
+    total_time = end_time - start_time
+
+    print(f"Processed {file} in {total_time:.2f} seconds\n\n")
+    times.append(total_time)
+
+print(f"Total embedding time: {sum(times)}")
