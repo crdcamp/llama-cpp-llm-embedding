@@ -92,6 +92,11 @@ print(third_vec.shape)
 
 # %% Inspect
 vectors = [first_vec, second_vec, third_vec]
+print("Before array flattening:")
+for vec in vectors:
+    print(vec.shape)
+
+print("\nAfter array flattening:")
 
 vectors = [v.flatten() for v in vectors]
 for vec in vectors:
