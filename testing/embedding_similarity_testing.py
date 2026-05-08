@@ -54,8 +54,8 @@ else:
 
 # %% Convert embeddings to arrays
 # Using list comprehension for later. Not necessary here when we're dealing with single documents
-first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
-second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
+first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']]).reshape(1, -1)
+second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']]).reshape(1, -1)
 
 print(first_vec.shape, "\n", second_vec.shape, "\n")
 print(f"First vector:\n{first_vec}\n")
@@ -78,20 +78,26 @@ This is undoubtedly incorrect...
 Let's do some inspection while referencing this: https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
 to try and fix some things
 """
+
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
-
-# %% Inspecting (again)
-print(first_vec.shape, "\n", second_vec.shape)
-
-
 
 # %% Calculating cosine similarity for multiple docs
 third_doc = "../data/summary/httpsbrainyxcojournaljournal22.md"
 with open(third_doc, 'r', encoding='utf-8') as f3:
     third_doc_str = f3.read()
 third_doc_embeddings = llm.create_embedding(third_doc_str)
-third_vec = np.array([item['embedding'] for item in third_doc_embeddings['data']]).reshape(-1, 1)
+third_vec = np.array([item['embedding'] for item in third_doc_embeddings['data']]).reshape(1, -1)
+print(third_vec.shape)
 
-mult_cos_sim = cosine_similarity([first_vec, second_vec, third_vec])
+# %% Inspect
+vectors = [first_vec, second_vec, third_vec]
+count = 0
+for vec in vectors:
+    count += 1
+    print(f"{count} vector shape: {vec.shape}")
+# %% Calculate
+mult_cos_sim = cosine_similarity(vectors)
 print(mult_cos_sim)
+
+# %% Save to inspect
