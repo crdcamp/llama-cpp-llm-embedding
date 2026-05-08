@@ -12,10 +12,6 @@ llm = Llama(
     n_ctx=context_length,
     n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
-# %% Chunk function
-def chunk(arr_range, chunk_size):
-    arr_range = iter(arr_range)
-    return iter(lambda: list(islice(arr_range, chunk_size)), [])
 
 # %% Text splitter
 text_splitter = RecursiveCharacterTextSplitter(
@@ -26,17 +22,16 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 # %% Test text split
-# Still getting llama decode error of -1 here...
 test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
 with open(test_file, 'r', encoding='utf-8') as f:
     # Initial reading and data inspection
     test_content = f.read()
     test_documents = text_splitter.create_documents([test_content])
-    # Create embeddings for text chunks
-    embedding = llm.create_embedding(
-        [item.page_content for item in test_documents]
-    )
+    #print(test_documents)
+    contents = [doc.page_content for doc in test_documents]
 
+    for item in contents:
+        llm.create_embedding(item)
 
 
 # %% Open documents
