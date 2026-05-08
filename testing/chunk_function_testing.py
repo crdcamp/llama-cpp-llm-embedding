@@ -21,22 +21,15 @@ summary_dir = "../data/summary"
 for file in os.listdir(summary_dir):
     if file.endswith('.md'):
         path = os.path.join(summary_dir, file)
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read()
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-                # Embedding
-                embedding = llm.create_embedding(content)
-                embedding_token_usage = embedding['usage']['total_tokens']
+            # Embedding
+            embedding = llm.create_embedding(content)
+            embedding_token_usage = embedding['usage']['total_tokens']
 
-                if embedding_token_usage <= context_length:
-                    embedding_vector = np.array([item["embedding"] for item in embedding["data"]]).flatten()
-                    print(f"{file} successfully converted to vector with shape: {embedding_vector.shape}")
-                else:
-                    continue
-
-        except Exception as e:
-            print(f"Error for file {file}: {e}")
-
-    else:
-        continue
+            if embedding_token_usage <= context_length:
+                embedding_vector = np.array([item["embedding"] for item in embedding["data"]]).flatten()
+                print(f"{file} successfully converted to vector with shape: {embedding_vector.shape}")
+            else:
+                continue
