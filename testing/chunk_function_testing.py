@@ -1,6 +1,7 @@
 # %% Imports
 from llama_cpp import Llama
 import os
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import numpy as np
 
 # %% Model
@@ -12,10 +13,21 @@ llm = Llama(
     n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
 
+# %% Text splitter
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=300,
+    chunk_overlap=50,
+    length_function=len,
+    is_separator_regex=False,
+)
 # %% Chunk function
 def chunk():
     pass
 
+"""
+DO NOT RUN THIS WITHOUT THE CHUNK FUNCTION.
+YOU WILL FREEZE EVERYTHING!
+"""
 # %% Open documents
 summary_dir = "../data/summary"
 for file in os.listdir(summary_dir):
