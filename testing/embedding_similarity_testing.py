@@ -54,8 +54,8 @@ else:
 
 # %% Convert embeddings to arrays
 # Using list comprehension for later. Not necessary here when we're dealing with single documents
-first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']]).reshape(1, -1)
-second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']]).reshape(1, -1)
+first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
+second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
 
 print(first_vec.shape, "\n", second_vec.shape, "\n")
 print(f"First vector:\n{first_vec}\n")
@@ -68,7 +68,7 @@ Use this resource to calculate cosine similarity among all the vectors:
     https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
 
     Example:
-        calculate the entire cosie similarity matrix among X, Y, and Z
+        calculate the entire cosine similarity matrix among X, Y, and Z
         `cos_sim = cosine_similarity([X, Y, Z])`
 """
 # Compare the cosine similarity between the two embedded documents
@@ -87,16 +87,22 @@ third_doc = "../data/summary/httpsbrainyxcojournaljournal22.md"
 with open(third_doc, 'r', encoding='utf-8') as f3:
     third_doc_str = f3.read()
 third_doc_embeddings = llm.create_embedding(third_doc_str)
-third_vec = np.array([item['embedding'] for item in third_doc_embeddings['data']]).reshape(1, -1)
+third_vec = np.array([item['embedding'] for item in third_doc_embeddings['data']])
 print(third_vec.shape)
 
 # %% Inspect
 vectors = [first_vec, second_vec, third_vec]
-count = 0
+
+vectors = [v.flatten() for v in vectors]
 for vec in vectors:
-    count += 1
-    print(f"{count} vector shape: {vec.shape}")
+    print(vec.shape)
 # %% Calculate
+"""
+Outputs the following error:
+    ValueError: Found array with dim 3, while dim <= 2 is required by check_pairwise_arrays.
+
+Not sure what that means since all the arrays are shaped the same...
+"""
 mult_cos_sim = cosine_similarity(vectors)
 print(mult_cos_sim)
 
