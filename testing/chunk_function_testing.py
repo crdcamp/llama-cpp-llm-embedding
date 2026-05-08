@@ -29,7 +29,10 @@ for file in os.listdir(summary_dir):
             embedding_token_usage = embedding['usage']['total_tokens']
 
             if embedding_token_usage <= context_length:
-                embedding_vector = np.array([item["embedding"] for item in embedding["data"]]).flatten()
-                print(f"{file} successfully converted to vector with shape: {embedding_vector.shape}")
+                try:
+                    embedding_vector = np.array([item["embedding"] for item in embedding["data"]]).flatten()
+                    print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
+                except Exception as e:
+                    print(f"Error processing file {file}: {e}. Skipping...")
             else:
                 continue
