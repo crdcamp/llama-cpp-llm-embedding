@@ -15,8 +15,9 @@ llm = Llama(
     n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
 
+
 """
-THIS DESPARATELY NEEDS A FUNCTION TO SPLIT
+THIS DESPERATELY NEEDS A FUNCTION TO SPLIT
 THE PROCESSING INTO CHUNKS
 """
 # %% Embedding all documents and calculating cosine similarity

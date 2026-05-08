@@ -1,8 +1,8 @@
-# Resource: https://codesignal.com/learn/courses/understanding-embeddings-and-vector-representations-3/lessons/comparing-vector-embedding-models-in-python-pgvector
 # %% Imports
 from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from itertools import islice
 import os
 import time
 
@@ -33,6 +33,11 @@ print(type(first_doc_embeddings), "\n", type(second_doc_embeddings))
 # We want to target `data`
 for key, value in first_doc_embeddings.items():
     print(key)
+print()
+print(f"`object` key content: {first_doc_embeddings["object"]}")
+print(f"`data` key type: {type(first_doc_embeddings["data"])}")
+print(f"`model` key content: {first_doc_embeddings["model"]}")
+print(f"`usage` key content: {first_doc_embeddings["usage"]}")
 
 # %% Verify that token usage doesn't exceed context window
 print("First doc embeddings usage: ", first_doc_embeddings['usage']['total_tokens'])
@@ -52,9 +57,12 @@ else:
 first_vec = np.array([item['embedding'] for item in first_doc_embeddings['data']])
 second_vec = np.array([item['embedding'] for item in second_doc_embeddings['data']])
 
-print(first_vec.shape, "\n", second_vec.shape)
+print(first_vec.shape, "\n", second_vec.shape, "\n")
+print(f"First vector:\n{first_vec}\n")
+print(f"Second vector:\n{second_vec}\n")
 
 # %% Cosine Similarity
+# Eliminate potentially unrelated from the dataset
 """
 Use this resource to calculate cosine similarity among all the vectors:
     https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
@@ -64,41 +72,26 @@ Use this resource to calculate cosine similarity among all the vectors:
         `cos_sim = cosine_similarity([X, Y, Z])`
 """
 # Compare the cosine similarity between the two embedded documents
+
+"""
+This is undoubtedly incorrect...
+Let's do some inspection while referencing this: https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
+to try and fix some things
+"""
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
 
-# %% Embedding all documents and calculating cosine similarity
-docs_dir = "../data/summary"
-times = []
+# %% Inspecting (again)
+print(first_vec.shape, "\n", second_vec.shape)
 
-for file in os.listdir(docs_dir):
-    if not file.endswith('.md'):
-        continue
 
-    path = os.path.join(docs_dir, file)
-    start_time = time.perf_counter()
 
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            print(f"Processing file: {file}")
-            content = f.read()
-            embedding = llm.create_embedding(content)
-            embedding_token_usage = embedding['usage']['total_tokens']
+# %% Calculating cosine similarity for multiple docs
+third_doc = "../data/summary/httpsbrainyxcojournaljournal22.md"
+with open(third_doc, 'r', encoding='utf-8') as f3:
+    third_doc_str = f3.read()
+third_doc_embeddings = llm.create_embedding(third_doc_str)
+third_vec = np.array([item['embedding'] for item in third_doc_embeddings['data']]).reshape(-1, 1)
 
-            if embedding_token_usage <= context_length:
-                embedding_vector = np.array([item['embedding'] for item in embedding['data']])
-                print(f"{file} successfully converted to vector")
-
-            else:
-                print(f"Error - Embedding exceeded context length: {embedding_token_usage} > {context_length}. Skipping...")
-
-    except Exception as e:
-        print(f"Failed to process {file}: {e}")
-
-    end_time = time.perf_counter()
-    total_time = end_time - start_time
-    times.append(total_time)
-    print(f"Processed {file} in {total_time:.2f} seconds\n\n")
-
-print("ALL DONE!")
-print(f"Total embedding time: {sum(times):.2f} seconds")
+mult_cos_sim = cosine_similarity([first_vec, second_vec, third_vec])
+print(mult_cos_sim)
