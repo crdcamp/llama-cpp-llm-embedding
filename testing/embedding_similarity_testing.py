@@ -1,4 +1,5 @@
 # %% Imports
+from posix import listdir
 from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -26,7 +27,7 @@ with open(first_doc, 'r', encoding='utf-8') as f1, open(second_doc, 'r', encodin
 first_doc_embeddings = llm.create_embedding(first_doc_str)
 second_doc_embeddings = llm.create_embedding(second_doc_str)
 
-# %% Inspect embeddings type
+# %% Inspect embeddings data type
 print(type(first_doc_embeddings), "\n", type(second_doc_embeddings))
 
 # %% Inspect dict key structure
@@ -72,13 +73,6 @@ Use this resource to calculate cosine similarity among all the vectors:
         `cos_sim = cosine_similarity([X, Y, Z])`
 """
 # Compare the cosine similarity between the two embedded documents
-
-"""
-This is undoubtedly incorrect...
-Let's do some inspection while referencing this: https://danielcaraway.github.io/html/sklearn_cosine_similarity.html
-to try and fix some things
-"""
-
 cos_sim = cosine_similarity(first_vec, second_vec)
 print(cos_sim)
 
@@ -101,14 +95,28 @@ print("\nAfter array flattening:")
 vectors = [v.flatten() for v in vectors]
 for vec in vectors:
     print(vec.shape)
-# %% Calculate
-"""
-Outputs the following error:
-    ValueError: Found array with dim 3, while dim <= 2 is required by check_pairwise_arrays.
-
-Not sure what that means since all the arrays are shaped the same...
-"""
+# %% Calculate Cosine Similarity
 mult_cos_sim = cosine_similarity(vectors)
 print(mult_cos_sim)
 
-# %% Save to inspect
+"""
+Now we need to input a few unrelated documents into the mix
+to test if I'm actually calculating cosine similarity correctly here
+
+I'll also rewrite a good bit of this in a cleaner way for when it's
+transferred to the main code
+
+I'll need to come back here when the embedding function chunking is figured out though...
+"""
+
+# %% Open documents and embed
+# Need the chunking function for this part
+summary_dir = "../data/summary"
+for file in os.listdir(summary_dir):
+    if file.endswith('.md'):
+        path = os.path.join(summary_dir, file)
+        print(path)
+        with open(path, "r", encoding="utf-8") as f:
+            summary = f.read()
+    else:
+        continue
