@@ -20,21 +20,39 @@ text_splitter = RecursiveCharacterTextSplitter(
     length_function=len,
     is_separator_regex=False,
 )
-# %% Chunk function
-def chunk():
-    pass
 
-"""
-DO NOT RUN THIS WITHOUT THE CHUNK FUNCTION.
-YOU WILL FREEZE EVERYTHING!
-"""
+# %% Test text split
+test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
+with open(test_file, 'r', encoding='utf-8') as f:
+    # Initial reading and data inspection
+    #print("PRE-TEXT SPLIT")
+    test_content = f.read()
+    # print(type(test_content))
+    # print(len(test_content), "\n")
+
+    # Use text splitter and inspect again
+    #print("POST TEXT-SPLIT")
+    test_documents = text_splitter.create_documents([test_content])
+    print(type(test_documents))
+    print(len(test_documents))
+
+
+
+
 # %% Open documents
+"""
+DO NOT RUN THIS WITHOUT THE TEXT SPLIT.
+YOU WILL FREEZE EVERYTHING!
+""";
 summary_dir = "../data/summary"
 for file in os.listdir(summary_dir):
     if file.endswith('.md'):
         path = os.path.join(summary_dir, file)
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
+
+            # Might just reassign this to `content` instead... not sure yet
+            split_content = text_splitter.split_text(content)
 
             # Embedding
             embedding = llm.create_embedding(content)
