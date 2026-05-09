@@ -62,4 +62,4 @@ for file in os.listdir(summary_dir):
 end_time = time.perf_counter()
 
 elapsed_time = end_time - start_time
-print(f"\nEmbedded documents in {elapsed_time} seconds.")
+print(f"\nEmbedded documents in {elapsed_time} seconds")
