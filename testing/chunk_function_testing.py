@@ -2,6 +2,7 @@
 from llama_cpp import Llama
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import time
 import numpy as np
 
 # %% Model
@@ -15,7 +16,7 @@ llm = Llama(
 
 # %% Text splitter
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=300,
+    chunk_size=100,
     chunk_overlap=50,
     length_function=len,
     is_separator_regex=False,
@@ -34,8 +35,9 @@ with open(test_file, 'r', encoding='utf-8') as f:
         llm.create_embedding(item)
 
 
-# %% Open documents
+# %% Split into chunks and embed
 summary_dir = "../data/summary"
+start_time = time.perf_counter()
 for file in os.listdir(summary_dir):
     if file.endswith('.md'):
         path = os.path.join(summary_dir, file)
@@ -46,14 +48,18 @@ for file in os.listdir(summary_dir):
             split_content = text_splitter.split_text(content)
 
             # Embedding
-            embedding = llm.create_embedding(content)
-            embedding_token_usage = embedding['usage']['total_tokens']
+            embeddings = llm.create_embedding(split_content)
+            embedding_token_usage = embeddings['usage']['total_tokens']
 
             if embedding_token_usage <= context_length:
                 try:
-                    embedding_vector = np.array([item["embedding"] for item in embedding["data"]]).flatten()
+                    embedding_vector = np.array([item["embedding"] for item in embeddings["data"]]).flatten()
                     print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
                 except Exception as e:
                     print(f"Error processing file {file}: {e}. Skipping...")
             else:
                 continue
+end_time = time.perf_counter()
+
+elapsed_time = end_time - start_time
+print(f"\nEmbedded documents in {elapsed_time} seconds.")
