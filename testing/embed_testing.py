@@ -17,6 +17,13 @@ print(type(first_doc_content))
 # %% Create single document embedding
 embeddings = llm.create_embedding(first_doc_content)
 
+# %% Inspecting for assigning to variable
+print(type(embeddings))
+for key, value in embeddings.items():
+    print(key)
+print(embeddings)
+
+
 # %% Read second document
 second_doc = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
 with open(second_doc, 'r', encoding='utf-8') as f2:
