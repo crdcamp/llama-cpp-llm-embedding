@@ -5,54 +5,60 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 import numpy as np
 
+from testing.aggregate_embedding_testing import embedding_token_usage
+
 # %% Test file
 test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
 
 # %% Model
-context_length = 40960
+context_window = 20480
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
-    n_ctx=context_length,
-    n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
+    n_ctx=context_window,
+    n_batch=context_window # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
 
 # %% Text splitter
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=100,
-    chunk_overlap=50,
+    chunk_size=50,
+    chunk_overlap=0,
     length_function=len,
     is_separator_regex=False,
 )
 
-# %% Test text split
-with open(test_file, 'r', encoding='utf-8') as f:
-    # Initial reading and data inspection
-    test_content = f.read()
-    test_documents = text_splitter.create_documents([test_content])
-    print(f"Test documents type: {type(test_documents)}")
-
-    contents = [doc.page_content for doc in test_documents]
-    print(f"Contents type: {type(contents)}")
-
-    for item in contents:
-        embeddings = llm.create_embedding(item)
-        print(f"Embeddings type: {type(embeddings)}")
-
 # %% Conversion to function
-def embed_file(file):
+def embed_file(file, context_window: int):
     start_time = time.perf_counter()
     with open(file, 'r', encoding='utf-8') as f:
         text = f.read()
         split_text = text_splitter.create_documents([text])
         documents = [doc.page_content for doc in split_text]
-        print(type(documents))
+        documents_embeddings = []
 
         for doc in documents:
             embeddings = llm.create_embedding(doc)
+
+            """
+            Not entirely necessary to include this, part below... but just in case
+            The logic for referencing context window might also be incorrect
+            You'll also want to calculate the tokens earlier in the code as well,
+            and use this logic earlier, but we'll leave this as is for now
+            """
+            embedding_token_usage = embeddings['usage']['total_tokens']
+            if embedding_token_usage < context_window:
+                documents_embeddings.extend(embeddings["data"])
+            else:
+                print(f"File {file} exceeded context window. Skipping...")
+                continue
 
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Documents embedded in {elapsed_time:.2f} seconds")
 
-test_embed = embed_file(test_file)
+    return documents_embeddings
+
+# %% Function testing
+test_embed = embed_file(test_file, context_window)
+
+# %% Inspect
