@@ -1,10 +1,11 @@
 # %% Imports
 from llama_cpp import Llama
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-from itertools import islice
 import os
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
+import numpy as np
+
+from testing.aggregate_embedding_testing import embedding_token_usage
 
 # %% Model
 context_length = 40960
@@ -15,42 +16,59 @@ llm = Llama(
     n_batch=context_length # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
 
+# %% Text splitter
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=100,
+    chunk_overlap=50,
+    length_function=len,
+    is_separator_regex=False,
+)
 
-"""
-THIS DESPERATELY NEEDS A FUNCTION TO SPLIT
-THE PROCESSING INTO CHUNKS
-"""
-# %% Embedding all documents and calculating cosine similarity
-docs_dir = "../data/summary"
-times = []
-for file in os.listdir(docs_dir):
-    if not file.endswith('.md'):
-        continue
+# %% Test text split
+test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
+with open(test_file, 'r', encoding='utf-8') as f:
+    # Initial reading and data inspection
+    test_content = f.read()
+    test_documents = text_splitter.create_documents([test_content])
+    #print(test_documents)
+    contents = [doc.page_content for doc in test_documents]
 
-    path = os.path.join(docs_dir, file)
-    start_time = time.perf_counter()
+    for item in contents:
+        llm.create_embedding(item)
 
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            print(f"Processing file: {file}")
-            content = f.read()
-            embedding = llm.create_embedding(content)
-            embedding_token_usage = embedding['usage']['total_tokens']
 
+# %% Split into chunks and embed
+summary_dir = "../data/summary"
+start_time = time.perf_counter()
+for file in os.listdir(summary_dir):
+    if file.endswith('.md'):
+        path = os.path.join(summary_dir, file)
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+            documents_embeddings = []
+            documents = text_splitter.create_documents([text])
+
+            for doc in documents:
+                embeddings = llm.create_embedding(doc.page_content) # For some reason list comprehension won't work for this function
+                documents_embeddings.extend(
+                    [
+                        (document, embeddings['embeddding'])
+                        for document, embeddings in zip(doc, embeddings['data'])
+                    ]
+                )
+
+                # Saving this for later
+                #array = np.array([item['embedding'] for item in embeddings['data']])
+            embedding_token_usage = embeddings['usage']['total_tokens']
             if embedding_token_usage <= context_length:
-                embedding_vector = np.array([item['embedding'] for item in embedding['data']])
-                print(f"{file} successfully converted to vector")
-
+                try:
+                    embedding_vector = np.array([item["embedding"] for item in embeddings["data"]]).flatten()
+                    print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
+                except Exception as e:
+                    print(f"Error processing file {file}: {e}. Skipping...")
             else:
-                print(f"Error - Embedding exceeded context length: {embedding_token_usage} > {context_length}. Skipping...")
+                continue
+end_time = time.perf_counter()
+elapsed_time = end_time - start_time
 
-    except Exception as e:
-        print(f"Failed to process {file}: {e}")
-
-    end_time = time.perf_counter()
-    total_time = end_time - start_time
-    times.append(total_time)
-    print(f"Processed {file} in {total_time:.2f} seconds\n\n")
-
-print("ALL DONE!")
-print(f"Total embedding time: {sum(times):.2f} seconds")
+print(f"\nEmbedded documents in {elapsed_time:.2f} seconds")
