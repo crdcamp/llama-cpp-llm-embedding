@@ -5,6 +5,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 import numpy as np
 
+from testing.aggregate_embedding_testing import embedding_token_usage
+
 # %% Model
 context_length = 40960
 llm = Llama(
@@ -42,24 +44,24 @@ for file in os.listdir(summary_dir):
     if file.endswith('.md'):
         path = os.path.join(summary_dir, file)
         with open(path, "r", encoding="utf-8") as f:
-            content = f.read()
+            text = f.read()
+            documents_embeddings = []
+            documents = text_splitter.create_documents([text])
 
-            # Might just reassign this to `content` instead... not sure yet
-            split_content = text_splitter.split_text(content)
+            for doc in documents:
+                llm.create_embedding(doc)
 
-            # Embedding
-            embeddings = llm.create_embedding(split_content)
-            embedding_token_usage = embeddings['usage']['total_tokens']
 
-            if embedding_token_usage <= context_length:
-                try:
-                    embedding_vector = np.array([item["embedding"] for item in embeddings["data"]]).flatten()
-                    print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
-                except Exception as e:
-                    print(f"Error processing file {file}: {e}. Skipping...")
-            else:
-                continue
+            #embedding_token_usage = embeddings['usage']['total_tokens']
+            # if embedding_token_usage <= context_length:
+            #     try:
+            #         embedding_vector = np.array([item["embedding"] for item in embeddings["data"]]).flatten()
+            #         print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
+            #     except Exception as e:
+            #         print(f"Error processing file {file}: {e}. Skipping...")
+            # else:
+            #     continue
 end_time = time.perf_counter()
-
 elapsed_time = end_time - start_time
-print(f"\nEmbedded documents in {elapsed_time} seconds")
+
+print(f"\nEmbedded documents in {elapsed_time:.2f} seconds")
