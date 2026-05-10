@@ -56,8 +56,13 @@ def embed_file(file, context_window: int):
 
 
 # %% Cosine Similarity
-def cosine_similarity(vector):
+def calculate_cosine_similarity(vector):
     vector = vector.flatten()
     print(vector.shape)
 
-test_vector =
+# %% Testing embedding
+test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+test_vector = embed_file(test_doc, context_window=context_window)
+
+# %% Test cosine similarity
+print(calculate_cosine_similarity)
