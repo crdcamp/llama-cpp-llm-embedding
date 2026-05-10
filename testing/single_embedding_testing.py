@@ -60,4 +60,6 @@ def embed_file(file, context_window: int):
 # %% Function testing
 test_embed = embed_file(test_file, context_window)
 
-# %%
+# %% Cosine Similarity
+def cosine_similarity(array):
+    pass

@@ -1,9 +1,7 @@
 # %% Imports
-from posix import listdir
 from llama_cpp import Llama
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from itertools import islice
 import os
 import time
 

@@ -8,7 +8,7 @@ import numpy as np
 # %% Model
 context_window = 20480
 llm = Llama(
-    model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
+    model_path="models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
     verbose=True,
     n_ctx=context_window,
@@ -38,7 +38,7 @@ def embed_file(file, context_window: int):
             """
             Not entirely necessary to include this part below... but we'll include it just in case.
             The logic for referencing context window also might be incorrect.
-            You'll also want to calculate the tokens earlier in the code as well,
+            You'll also want to calculate the token1s earlier in the code as well,
             and use this logic earlier, but we'll leave this as is for now
             """
             embedding_token_usage = embeddings['usage']['total_tokens']
@@ -54,9 +54,10 @@ def embed_file(file, context_window: int):
 
     return documents_embeddings
 
-# %% Function testing
-test_embed = embed_file(test_file, context_window)
 
 # %% Cosine Similarity
-def cosine_similarity(array):
-    pass
+def cosine_similarity(vector):
+    vector = vector.flatten()
+    print(vector.shape)
+
+test_vector =
