@@ -48,16 +48,3 @@ end_time = time.perf_counter()
 elapsed_time = end_time - start_time
 
 print(f"\nEmbedded documents in {elapsed_time:.2f} seconds")
-
-
-# # Saving this for later
-array = np.array([item['embedding'] for item in embeddings['data']])
-embedding_token_usage = embeddings['usage']['total_tokens']
-if embedding_token_usage <= context_length:
-    try:
-        embedding_vector = np.array([item["embedding"] for item in embeddings["data"]]).flatten()
-        print(f"Successfully converted {file} to vector with shape: {embedding_vector.shape}")
-    except Exception as e:
-        print(f"Error processing file {file}: {e}. Skipping...")
-else:
-    continue

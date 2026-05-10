@@ -5,8 +5,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 import numpy as np
 
-from testing.aggregate_embedding_testing import embedding_token_usage
-
 # %% Test file
 test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
 
@@ -15,6 +13,7 @@ context_window = 20480
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
+    verbose=True,
     n_ctx=context_window,
     n_batch=context_window # IN ACTUAL USE CASE: Leave this at 512 and encode the text using batches instead
 )
@@ -40,8 +39,8 @@ def embed_file(file, context_window: int):
             embeddings = llm.create_embedding(doc)
 
             """
-            Not entirely necessary to include this, part below... but just in case
-            The logic for referencing context window might also be incorrect
+            Not entirely necessary to include this part below... but we'll include it just in case
+            The logic for referencing context window might also be incorrect.
             You'll also want to calculate the tokens earlier in the code as well,
             and use this logic earlier, but we'll leave this as is for now
             """
@@ -61,4 +60,4 @@ def embed_file(file, context_window: int):
 # %% Function testing
 test_embed = embed_file(test_file, context_window)
 
-# %% Inspect
+# %%
