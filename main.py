@@ -60,6 +60,6 @@ for doc in test_agg_docs:
 print(f"Total embedding time: {sum(embedding_times)}")
 
 # %% Cosine Similarity
-def calculate_cosine_similarity(vector):
-    vector = np.array(vector).flatten()
+def calculate_cosine_similarity(array):
+    vector = np.array(array).flatten()
     print(vector.shape)
