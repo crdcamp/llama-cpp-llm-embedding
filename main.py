@@ -32,7 +32,7 @@ def embed_file(file: str, context_window: int):
         text_token = text.encode('utf-8') # Some reason `.tokenize()` gets upset without this. Involves a utf encoding error I think
         text_token_len = len(llm.tokenize(text_token, add_bos=False))
         if text_token_len > context_window:
-            print(f"Error: File {file} exceeded context window: {text_token_len}. Abandoning...")
+            print(f"Error: File {file} exceeded context window: {text_token_len}. Abandoning...\n\n")
             return None
         else: # Embed
             start_time = time.perf_counter()
@@ -40,7 +40,7 @@ def embed_file(file: str, context_window: int):
             embeddings = llm.create_embedding(text) # For some reason list comprehension won't work here
             end_time = time.perf_counter()
             print(f"File: embedded in {end_time - start_time:.2f} seconds")
-            print(f"Processed in {text_token_len / (end_time - start_time):.2f} tokens/second")
+            print(f"Processed in {text_token_len / (end_time - start_time):.2f} tokens/second\n\n")
             return embeddings
 
 
