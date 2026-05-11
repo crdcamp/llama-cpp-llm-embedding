@@ -2,7 +2,6 @@
 from langchain_text_splitters.base import TokenTextSplitter
 from llama_cpp import Llama
 import os
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 import numpy as np
 
@@ -18,10 +17,8 @@ llm = Llama(
 
 # %% Text splitter
 text_splitter = TokenTextSplitter(
-    chunk_size=300,
+    chunk_size=512,
     chunk_overlap=50,
-    length_function=len,
-    is_separator_regex=False,
 )
 
 # %% Embed Function
