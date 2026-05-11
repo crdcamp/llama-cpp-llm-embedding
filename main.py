@@ -17,14 +17,14 @@ llm = Llama(
 
 # %% Text splitter
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=50,
+    chunk_size=70,
     chunk_overlap=0,
     length_function=len,
     is_separator_regex=False,
 )
 
 # %% Embed Function
-def embed_file(file, context_window: int):
+def embed_file(file: str, context_window: int):
     start_time = time.perf_counter()
     with open(file, 'r', encoding='utf-8') as f:
         text = f.read()
@@ -33,12 +33,12 @@ def embed_file(file, context_window: int):
         documents_embeddings = []
 
         for doc in documents:
-            embeddings = llm.create_embedding(doc)
+            embeddings = llm.create_embedding(doc) # For some reason list comprehension won't work in this method
 
             """
             Not entirely necessary to include this part below... but we'll include it just in case.
             The logic for referencing context window also might be incorrect.
-            You'll also want to calculate the token1s earlier in the code as well,
+            You'll also want to calculate the tokens earlier in the code as well
             and use this logic earlier, but we'll leave this as is for now
             """
             embedding_token_usage = embeddings['usage']['total_tokens']
@@ -49,20 +49,41 @@ def embed_file(file, context_window: int):
                 continue
 
     end_time = time.perf_counter()
-    elapsed_time = end_time - start_time
-    print(f"Documents embedded in {elapsed_time:.2f} seconds")
+    print(f"Documents embedded in {end_time - start_time:.2f} seconds")
 
     return documents_embeddings
+
+# %% Testing embedding
+test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+test_documents_embeddings = embed_file(test_doc, context_window=context_window)
+
+# %% Inspecting
+print("test_documents_embeddings PROPERTIES")
+print("Type: ", type(test_documents_embeddings))
+print("Length: ", len(test_documents_embeddings))
+#print("Test vector sample:\n", test_documents_embeddings[0:1], "\n")
+
+
+"""
+Need to do aggregate testing before continuing here
+"""
+# %% Multiple doc aggregate test embedding
+test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
+test_embeddings = []
+for doc in test_agg_docs:
+    embeddings = embed_file(doc, context_window=context_window)
+    test_embeddings.append(embeddings)
+
+# %% Inspect results
+
+
+
 
 
 # %% Cosine Similarity
 def calculate_cosine_similarity(vector):
-    vector = vector.flatten()
+    vector = np.array(vector).flatten()
     print(vector.shape)
 
-# %% Testing embedding
-test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
-test_vector = embed_file(test_doc, context_window=context_window)
-
 # %% Test cosine similarity
-print(calculate_cosine_similarity)
+test_cosine_sim = calculate_cosine_similarity(test_documents_embeddings)
