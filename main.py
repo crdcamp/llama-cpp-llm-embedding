@@ -43,25 +43,16 @@ def embed_file(file: str, context_window: int):
             print(f"Processed in {text_token_len / (end_time - start_time):.2f} tokens/second")
             return embeddings
 
-# %% Testing doc
-test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
-
-# %% Embed
-test_documents_embeddings = embed_file(test_doc, context_window=context_window)
-
 
 
 # %% Multiple doc aggregate test embedding
 test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
-test_embeddings = []
+test_embeddings = {}
 
 # %% Go
 for doc in test_agg_docs:
     embeddings = embed_file(doc, context_window=context_window)
     test_embeddings.append(embeddings)
-
-# %% Inspect
-
 
 # %% Cosine Similarity
 def calculate_cosine_similarity(vector):
