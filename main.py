@@ -51,8 +51,16 @@ def embed_file(file: str, context_window: int):
 
     return documents_embeddings
 
-# %% Testing embedding
+# %% Testing doc
 test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+
+# %% Tokenize
+with open(test_doc, 'r', encoding='utf-8') as f:
+    test_text = f.read().encode('utf-8')
+    tokens = llm.tokenize(test_text, add_bos=False)
+    print(tokens)
+
+# %% Embed
 test_documents_embeddings = embed_file(test_doc, context_window=context_window)
 
 # %% Inspecting
@@ -73,8 +81,6 @@ for doc in test_agg_docs:
     test_embeddings.append(embeddings)
 
 # %% Inspect
-
-
 
 
 # %% Cosine Similarity
