@@ -47,7 +47,7 @@ def embed_file(file: str, context_window: int):
 
 # %% Multiple doc aggregate test embedding
 test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
-test_embeddings = {}
+test_embeddings = []
 
 # %% Go
 for doc in test_agg_docs:
