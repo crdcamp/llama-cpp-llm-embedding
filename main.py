@@ -2,6 +2,7 @@
 from llama_cpp import Llama
 import time
 import numpy as np
+import chromadb
 
 # %% Model
 """
@@ -58,6 +59,21 @@ for doc in test_agg_docs:
         embedding_times.append(elapsed_time)
 
 print(f"Total embedding time: {sum(embedding_times)}")
+"""
+You might wanna think about graphing these embeddings to be
+sure you're doing this correctly
+"""
+# %% Chromadb
+chroma_client = chromadb.Client()
+
+# We'll look into naming these in a better way later
+# Maybe just use the model to do it somehow?
+# Idk...
+client = chromadb.PersistentClient(path="db")
+
+
+# %%
+
 
 # %% Cosine Similarity
 def calculate_cosine_similarity(array):
