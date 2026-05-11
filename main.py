@@ -17,8 +17,8 @@ llm = Llama(
 
 # %% Text splitter
 text_splitter = TokenTextSplitter(
-    chunk_size=512,
-    chunk_overlap=50,
+    chunk_size=2048,
+    chunk_overlap=100,
 )
 
 # %% Embed Function
