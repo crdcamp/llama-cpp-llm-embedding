@@ -1,4 +1,5 @@
 # %% Imports
+from langchain_text_splitters.base import TokenTextSplitter
 from llama_cpp import Llama
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -16,9 +17,9 @@ llm = Llama(
 )
 
 # %% Text splitter
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=150,
-    chunk_overlap=0,
+text_splitter = TokenTextSplitter(
+    chunk_size=300,
+    chunk_overlap=50,
     length_function=len,
     is_separator_regex=False,
 )
@@ -74,8 +75,7 @@ for doc in test_agg_docs:
     embeddings = embed_file(doc, context_window=context_window)
     test_embeddings.append(embeddings)
 
-# %% Inspect results
-
+# %% Inspect
 
 
 
