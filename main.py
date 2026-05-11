@@ -17,7 +17,7 @@ llm = Llama(
 
 # %% Text splitter
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=70,
+    chunk_size=150,
     chunk_overlap=0,
     length_function=len,
     is_separator_regex=False,
@@ -33,7 +33,7 @@ def embed_file(file: str, context_window: int):
         documents_embeddings = []
 
         for doc in documents:
-            embeddings = llm.create_embedding(doc) # For some reason list comprehension won't work in this method
+            embeddings = llm.create_embedding(doc) # For some reason list comprehension won't work here
 
             """
             Not entirely necessary to include this part below... but we'll include it just in case.
