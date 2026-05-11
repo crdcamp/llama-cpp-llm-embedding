@@ -26,6 +26,13 @@ def embed_file(file: str, context_window: int):
     start_time = time.perf_counter()
     with open(file, 'r', encoding='utf-8') as f:
         text = f.read()
+
+        # Token length calculation
+        token_text = text.encode('utf-8')
+        text_token_len = len(llm.tokenize(token_text, add_bos=False))
+        print(f"File: {file} token length: {text_token_len}")
+
+        # Split text
         split_text = text_splitter.create_documents([text])
         documents = [doc.page_content for doc in split_text]
         documents_embeddings = []
@@ -42,6 +49,7 @@ def embed_file(file: str, context_window: int):
             embedding_token_usage = embeddings['usage']['total_tokens']
             if embedding_token_usage <= context_window:
                 documents_embeddings.extend(embeddings["data"])
+                print(f"TOTAL TOKENS: {embeddings['usage']['total_tokens']}")
             else:
                 print(f"File {file} exceeded context window. Skipping...")
                 continue
@@ -53,12 +61,6 @@ def embed_file(file: str, context_window: int):
 
 # %% Testing doc
 test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
-
-# %% Tokenize
-with open(test_doc, 'r', encoding='utf-8') as f:
-    test_text = f.read().encode('utf-8')
-    tokens = llm.tokenize(test_text, add_bos=False)
-    print(tokens)
 
 # %% Embed
 test_documents_embeddings = embed_file(test_doc, context_window=context_window)
