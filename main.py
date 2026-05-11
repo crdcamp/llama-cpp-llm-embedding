@@ -15,6 +15,7 @@ So, we're gonna just leave this as a stripped down idea where
 the embedding function checks the length for our (short) context
 window.
 """
+
 context_window = 2048
 llm = Llama(
     model_path="models/Qwen3-Embedding-8B-Q6_K.gguf",
@@ -34,30 +35,32 @@ def embed_file(file: str, context_window: int):
         if text_token_len > context_window:
             print(f"Error: File {file} exceeded context window: {text_token_len}. Abandoning...\n\n")
             return None
-        else: # Embed
+        else: # Embed the file
             start_time = time.perf_counter()
-            print(f"Processing File: {file}\nToken Length: {text_token_len}")
-            embeddings = llm.create_embedding(text) # For some reason list comprehension won't work here
+            print(f"Processing File: {file}\nFile Token Length: {text_token_len}")
+            embeddings = llm.create_embedding(text)
             end_time = time.perf_counter()
-            print(f"File: embedded in {end_time - start_time:.2f} seconds")
-            print(f"Processed in {text_token_len / (end_time - start_time):.2f} tokens/second\n\n")
-            return embeddings
-
-
+            elapsed_time = end_time - start_time
+            print(f"File: embedded in {elapsed_time:.2f} seconds")
+            print(f"Processed in {text_token_len / (elapsed_time):.2f} tokens/second\n\n")
+            return embeddings, elapsed_time
 
 # %% Multiple doc aggregate test embedding
 test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
 test_embeddings = []
+embedding_times = []
 
-# %% Go
+# %% Testing embed function
 for doc in test_agg_docs:
-    embeddings = embed_file(doc, context_window=context_window)
-    test_embeddings.append(embeddings)
+    result = embed_file(doc, context_window=context_window)
+    if result is not None:
+        embeddings, elapsed_time = result
+        test_embeddings.append(embeddings)
+        embedding_times.append(elapsed_time)
+
+print(f"Total embedding time: {sum(embedding_times)}")
 
 # %% Cosine Similarity
 def calculate_cosine_similarity(vector):
     vector = np.array(vector).flatten()
     print(vector.shape)
-
-# %% Test cosine similarity
-test_cosine_sim = calculate_cosine_similarity(test_documents_embeddings)
