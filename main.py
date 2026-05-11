@@ -1,6 +1,5 @@
 # %% Imports
 from llama_cpp import Llama
-import os
 import time
 import numpy as np
 
