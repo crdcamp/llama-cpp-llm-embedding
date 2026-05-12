@@ -4,21 +4,14 @@ import time
 import numpy as np
 import chromadb
 
+# %% Chromadb
+client = chromadb.PersistentClient(path="db")
+collection = client.get_or_create_collection(name="vector-database")
+
 # %% Model
-"""
-Gonna abandon using text splitting on the documents for now.
-
-I have yet to confirm but I think text splitting might mess with the
-embedding results.
-
-So, we're gonna just leave this as a stripped down idea where
-the embedding function checks the length for our (short) context
-window.
-"""
-
 context_window = 2048
 llm = Llama(
-    model_path="models/Qwen3-Embedding-8B-Q6_K.gguf",
+    model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
     verbose=True,
     n_ctx=context_window,
@@ -45,29 +38,8 @@ def embed_file(file: str, context_window: int):
 
             return embeddings
 
-# %% Chromadb
-client = chromadb.PersistentClient(path="db")
-collection = client.get_or_create_collection(name="vector-database")
+# %% Test doc
+test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
 
-# %% Multiple doc aggregate test embedding
-test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
-test_embeddings = []
-embedding_times = []
-
-# %% Testing embed function
-for doc in test_agg_docs:
-    result = embed_file(doc, context_window=context_window)
-    if result is not None:
-        embeddings, elapsed_time = result
-        test_embeddings.append(embeddings)
-        embedding_times.append(elapsed_time)
-
-print(f"Total embedding time: {sum(embedding_times)}")
-
-# %% Cosine Similarity
-def calculate_cosine_similarity(array):
-    vector = np.array(array).flatten()
-    print(vector.shape)
-
-# %%
-print()
+# %% Test embedding
+test_embedding = embed_file(test_doc, context_window=context_window)
