@@ -49,7 +49,6 @@ for key, value in test_embedding.items():
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
 # Flatten list (was a nested list before)
 all_test_embeddings = list(itertools.chain.from_iterable(all_test_embeddings))
-print(all_test_embeddings)
 
 # %% Initialize ChromaDB
 # We'll use PesistentClient outside of testing
@@ -78,3 +77,9 @@ collection.add(
     embeddings=all_test_embeddings,
     metadatas=[{"document": f"{test_doc}"}],
 )
+
+# %% Inspect
+collection_result = client.get_collection(name="test-collection")
+all_collection_results = client.list_collections()
+print(collection_result)
+print(all_collection_results)
