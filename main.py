@@ -1,73 +1,86 @@
 # %% Imports
 from llama_cpp import Llama
-import time
-import numpy as np
 import chromadb
+from typing import Dict, Any
+from chromadb import Documents, EmbeddingFunction, Embeddings
+from chromadb.utils.embedding_functions import register_embedding_function
+from datetime import datetime
+import os
+import uuid
 
-# %% Model
-"""
-Gonna abandon using text splitting on the documents for now.
-
-I have yet to confirm but I think text splitting might mess with the
-embedding results.
-
-So, we're gonna just leave this as a stripped down idea where
-the embedding function checks the length for our (short) context
-window.
-"""
-
+# %% Model Params
 context_window = 2048
+model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
+
+# %% Load Model
 llm = Llama(
-    model_path="models/Qwen3-Embedding-8B-Q6_K.gguf",
+    model_path=model_path,
     embedding=True,
     verbose=True,
     n_ctx=context_window,
-    n_batch=context_window # Need to double check if this is a good idea... Definitely not something that will scale lol
+    n_batch=context_window # Need to double check if this is a good idea... Probably not a good idea...
 )
 
-# %% Embed Function
-def embed_file(file: str, context_window: int):
-    with open(file, 'r', encoding='utf-8') as f:
+# %% Custom embedding function for llama cpp
+@register_embedding_function
+class LlamaCppEmbeddingFunction(EmbeddingFunction):
+
+    def __init__(self, model, model_path: str):
+        self.model = model
+        self.model_path = model_path
+
+    def __call__(self, input: Documents) -> Embeddings:
+        result = self.model.create_embedding(list(input))
+        return [item['embedding'] for item in result['data']]
+
+    @staticmethod
+    def name() -> str:
+        return "my-ef"
+
+    def get_config(self) -> Dict[str, Any]:
+        return dict(model_path=self.model_path)
+
+    @staticmethod
+    def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
+        model = Llama(model_path=config['model_path'], embedding=True)
+        return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
+
+# %% Initialize ChromaDB
+# We'll use PesistentClient outside of testing
+# https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
+db_path = "db"
+os.makedirs(db_path, exist_ok=True)
+client = chromadb.PersistentClient(path=db_path)
+collection = client.get_or_create_collection(
+    name="test-collection",
+    embedding_function=LlamaCppEmbeddingFunction(model=llm, model_path=model_path),
+    metadata={
+        "description": "A test collection for learning ChromaDB",
+        "created": str(datetime.now())
+    },
+    # More info on configuration: https://docs.trychroma.com/docs/collections/configure#what-is-an-hnsw-index
+    configuration={
+        "hnsw": {
+            "space": "cosine", # Turns out we don't need that cosine function from earlier
+            "ef_construction": 100, # 100 is the default value
+            "ef_search": 100, # 100 is the default value
+        }
+    }
+)
+
+# %% Open docs dir
+documents_dir = "data/summary"
+for doc in os.listdir(documents_dir):
+    doc_path = os.path.join(documents_dir, doc)
+    with open(doc_path, 'r', encoding='utf-8') as f:
         text = f.read()
-        # Token length check
-        text_token = text.encode('utf-8') # Some reason `.tokenize()` gets upset without this. Involves a utf encoding error I think
-        text_token_len = len(llm.tokenize(text_token, add_bos=False))
-        if text_token_len > context_window:
-            print(f"Error: File {file} exceeded context window: {text_token_len}. Abandoning...\n\n")
-            return None
-        else: # Embed the file
-            start_time = time.perf_counter()
-            print(f"Processing File: {file}\nFile Token Length: {text_token_len}")
-            embeddings = llm.create_embedding(text)
-            end_time = time.perf_counter()
-            elapsed_time = end_time - start_time
-            print(f"File {file} embedded in {elapsed_time:.2f} seconds at {text_token_len / (elapsed_time):.2f} tokens/second\n\n")
+        collection.add(
+            ids=[doc_path],
+            documents=[text],
+            metadatas={"source": doc_path}
+        )
 
-            return embeddings
-
-# %% Chromadb
-client = chromadb.PersistentClient(path="db")
-collection = client.get_or_create_collection(name="vector-database")
-
-# %% Multiple doc aggregate test embedding
-test_agg_docs = ["data/summary/httpsawsamazoncomwhatisvectordatabases.md", "data/summary/httpsblogapifycomwhatisavectordatabase.md", "data/summary/httpsbrainyxcojournaljournal22.md"]
-test_embeddings = []
-embedding_times = []
-
-# %% Testing embed function
-for doc in test_agg_docs:
-    result = embed_file(doc, context_window=context_window)
-    if result is not None:
-        embeddings, elapsed_time = result
-        test_embeddings.append(embeddings)
-        embedding_times.append(elapsed_time)
-
-print(f"Total embedding time: {sum(embedding_times)}")
-
-# %% Cosine Similarity
-def calculate_cosine_similarity(array):
-    vector = np.array(array).flatten()
-    print(vector.shape)
-
-# %%
-print()
+# %% Inspect
+all_collection_results = client.list_collections()
+print("ALL COLLECTION RESULTS:")
+print(all_collection_results)
