@@ -3,10 +3,7 @@ import os
 from llama_cpp import Llama
 import time
 import chromadb
-from typing import Dict, Any
-from chromadb import Documents, EmbeddingFunction, Embeddings
-from chromadb.utils.embedding_functions import register_embedding_function
-from pydantic.type_adapter import P
+import itertools
 
 # %% Model
 context_window = 2048
@@ -49,17 +46,26 @@ for key, value in test_embedding.items():
 
 # %%
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
-print(type(all_test_embeddings))
+# Flatten list (was a nested list before)
+all_test_embeddings = list(itertools.chain.from_iterable(all_test_embeddings))
+print(all_test_embeddings)
 
 # %% Initialize ChromaDB
-test_db_path = "test_db"
-os.makedirs(test_db_path, exist_ok=True)
-
-client = chromadb.PersistentClient(path=test_db_path)
-collection = client.get_or_create_collection(name="test-database")
+# We'll use PesistentClient outside of testing
+# https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
+client = chromadb.EphemeralClient()
+collection = client.get_or_create_collection(
+    name="test-collection",
+    configuration={
+        "hnsw": {
+            "space": "cosine"
+        }
+    }
+)
 
 # %% Figure out how to insert embeddings into ChromaDB
 collection.add(
     ids=["id1"],
     embeddings=all_test_embeddings,
+    metadatas=[{"document": f"{test_doc}"}],
 )
