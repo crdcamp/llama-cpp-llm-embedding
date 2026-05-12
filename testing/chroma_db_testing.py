@@ -56,7 +56,7 @@ all_test_embeddings = list(itertools.chain.from_iterable(all_test_embeddings))
 client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
-    embedding_function=None,
+    embedding_function=None, # Since the embeddings are created prior to the database
     metadata={
         "description": "A test collection for learning ChromaDB",
         "created": str(datetime.now())
@@ -64,22 +64,28 @@ collection = client.get_or_create_collection(
     # More info on configuration: https://docs.trychroma.com/docs/collections/configure#what-is-an-hnsw-index
     configuration={
         "hnsw": {
-            "space": "cosine",
+            "space": "cosine", # Turns out we don't need that cosine function
             "ef_construction": 100, # 100 is the default value
             "ef_search": 100, # 100 is the default value
         }
     }
 )
 
-# %% Figure out how to insert embeddings into ChromaDB
+# %% Insert embeddings into ChromaDB
 collection.add(
-    ids=["id1"], # Replace this wit uuid later: https://www.youtube.com/watch?v=yvsmkx-Jaj0&t=318s
+    ids=["id1"], # Replace this with a uuid later: https://www.youtube.com/watch?v=yvsmkx-Jaj0&t=318s
     embeddings=all_test_embeddings,
     metadatas=[{"document": f"{test_doc}"}],
 )
 
-# %% Inspect
+# %% Inspect and query
 collection_result = client.get_collection(name="test-collection")
 all_collection_results = client.list_collections()
 print(collection_result)
 print(all_collection_results)
+
+collection.query(
+    query_texts=["The meaning of a vector database"]
+)
+# %%
+collection.get(ids=["id1"])
