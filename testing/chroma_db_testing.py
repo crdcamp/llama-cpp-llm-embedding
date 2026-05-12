@@ -83,8 +83,9 @@ print(collection_result)
 print(all_collection_results)
 
 results = collection.query(
-    query_texts=["The meaning of a vector database"],
-    n_results=1,
+    query_texts=["vector database"],
+    n_results=3,
+    include=["distances", "metadatas"]
 )
 
 print(results)
