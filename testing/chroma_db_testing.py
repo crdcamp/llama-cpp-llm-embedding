@@ -1,11 +1,16 @@
 # %% Imports
+import os
+from posixpath import exists
 from llama_cpp import Llama
 import time
 import numpy as np
 import chromadb
 
 # %% Chromadb
-client = chromadb.PersistentClient(path="db")
+test_db_path = "test_db"
+os.makedirs(test_db_path, exist_ok=True)
+
+client = chromadb.PersistentClient(path=test_db_path)
 collection = client.get_or_create_collection(name="vector-database")
 
 # %% Model
@@ -26,20 +31,25 @@ def embed_file(file: str, context_window: int):
         text_token = text.encode('utf-8') # Some reason `.tokenize()` gets upset without this. Involves a utf encoding error I think
         text_token_len = len(llm.tokenize(text_token, add_bos=False))
         if text_token_len > context_window:
-            print(f"Error: File {file} exceeded context window: {text_token_len}. Abandoning...\n\n")
+            print(f"Error: File `{file}` exceeded context window: {text_token_len}. Abandoning...\n\n")
             return None
         else: # Embed the file
             start_time = time.perf_counter()
-            print(f"Processing File: {file}\nFile Token Length: {text_token_len}")
+            print(f"Processing File: `{file}` with token length: {text_token_len}")
             embeddings = llm.create_embedding(text)
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
-            print(f"File {file} embedded in {elapsed_time:.2f} seconds at {text_token_len / (elapsed_time):.2f} tokens/second\n\n")
+            print(f"File `{file}` embedded in {elapsed_time:.2f} seconds at {text_token_len / (elapsed_time):.2f} tokens/second\n\n")
 
             return embeddings
 
 # %% Test doc
-test_doc = "data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+test_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
 
 # %% Test embedding
 test_embedding = embed_file(test_doc, context_window=context_window)
+
+# %% Inspect embeddings
+print(test_embedding)
+
+# %% Add to ChromaDB collection
