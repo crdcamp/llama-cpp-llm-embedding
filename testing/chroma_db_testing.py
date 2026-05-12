@@ -3,17 +3,23 @@ import os
 from llama_cpp import Llama
 import time
 import chromadb
+import numpy as np
+from typing import Dict, Any
+from chromadb import Documents, EmbeddingFunction, Embeddings
+from chromadb.utils.embedding_functions import register_embedding_function
 import itertools
 from datetime import datetime
 
 # %% Model
 context_window = 2048
+model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
+
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
     verbose=True,
     n_ctx=context_window,
-    n_batch=context_window # Need to double check if this is a good idea... Definitely not something that will scale lol
+    n_batch=context_window # Need to double check if this is a good idea... Probably not a good idea...
 )
 
 # %% Embed Function
@@ -47,11 +53,36 @@ for key, value in test_embedding.items():
 
 # %% Custom embedding function
 # Start here: https://docs.trychroma.com/docs/embeddings/embedding-functions#custom-embedding-functions
+# From: https://github.com/chroma-core/chroma/issues/2409
+@register_embedding_function
+class LlamaCppEmbeddingFunction(EmbeddingFunction):
+
+    def __init__(self, model):
+        self.model = model
+
+    def __call__(self, input: Documents) -> Embeddings:
+        # Need to add string and list checks here
+        embeddings = llm.create_embedding(input)
+        return embeddings
+
+    @staticmethod
+    def name() -> str:
+        return "my-ef"
+
+    def get_config(self) -> Dict[str, Any]:
+        return dict(model=self.model)
+
+    @staticmethod
+    def build_from_config(config: Dict[str, Any]) -> "EmbeddingFunction":
+        return MyEmbeddingFunction(config['model'])
+
+
 
 # %%
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
 # Flatten list (was a nested list before)
 all_test_embeddings = list(itertools.chain.from_iterable(all_test_embeddings))
+print(len(all_test_embeddings))
 
 # %% Initialize ChromaDB
 # We'll use PesistentClient outside of testing
@@ -59,7 +90,7 @@ all_test_embeddings = list(itertools.chain.from_iterable(all_test_embeddings))
 client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
-    embedding_function=None, # Since the embeddings are created prior to the database
+    embedding_function=LlamaCppEmbeddingFunction,
     metadata={
         "description": "A test collection for learning ChromaDB",
         "created": str(datetime.now())
