@@ -6,7 +6,6 @@ from chromadb import Documents, EmbeddingFunction, Embeddings
 from chromadb.utils.embedding_functions import register_embedding_function
 from datetime import datetime
 import os
-import uuid
 
 # %% Model Params
 context_window = 2048
@@ -35,7 +34,7 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
     @staticmethod
     def name() -> str:
-        return "my-ef"
+        return "llama-cpp-embed-chroma"
 
     def get_config(self) -> Dict[str, Any]:
         return dict(model_path=self.model_path)
@@ -46,8 +45,6 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
         return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
 
 # %% Initialize ChromaDB
-# We'll use PesistentClient outside of testing
-# https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
 db_path = "db"
 os.makedirs(db_path, exist_ok=True)
 client = chromadb.PersistentClient(path=db_path)
@@ -74,7 +71,7 @@ for doc in os.listdir(documents_dir):
     doc_path = os.path.join(documents_dir, doc)
     with open(doc_path, 'r', encoding='utf-8') as f:
         text = f.read()
-        collection.add(
+        collection.upsert(
             ids=[doc_path],
             documents=[text],
             metadatas={"source": doc_path}
