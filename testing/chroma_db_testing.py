@@ -1,5 +1,6 @@
 # %% Imports
 import os
+from pyexpat import model
 from llama_cpp import Llama
 import time
 import chromadb
@@ -57,12 +58,12 @@ for key, value in test_embedding.items():
 @register_embedding_function
 class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
-    def __init__(self, model):
+    def __init__(self, model, model_path: str):
         self.model = model
+        self.model_path = model_path  # store the path string separately for serialization
 
     def __call__(self, input: Documents) -> Embeddings:
-        # Need to add string and list checks here
-        result = self.model.create_embedding(input)
+        result = self.model.create_embedding(list(input))
         return [item['embedding'] for item in result['data']]
 
     @staticmethod
@@ -70,11 +71,12 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
         return "my-ef"
 
     def get_config(self) -> Dict[str, Any]:
-        return dict(model=self.model)
+        return dict(model_path=self.model_path)  # return the string, not the Llama object
 
     @staticmethod
     def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
-        return LlamaCppEmbeddingFunction(config['model'])
+        model = Llama(model_path=config['model_path'], embedding=True)
+        return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
 
 
 
@@ -90,7 +92,7 @@ print(len(all_test_embeddings))
 client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
-    embedding_function=LlamaCppEmbeddingFunction(model=llm),
+    embedding_function=LlamaCppEmbeddingFunction(model=llm, model_path=model_path),
     metadata={
         "description": "A test collection for learning ChromaDB",
         "created": str(datetime.now())
@@ -125,8 +127,10 @@ this is likely an incorrect implementation.
 With your embed function defined as `None`. this probably isn't
 working correctly...
 """
+
 collection.query(
     query_texts=["The meaning of a vector database"]
 )
+
 # %%
 collection.get(ids=["id1"])
