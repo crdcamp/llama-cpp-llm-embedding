@@ -62,8 +62,8 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
     def __call__(self, input: Documents) -> Embeddings:
         # Need to add string and list checks here
-        embeddings = llm.create_embedding(input)
-        return embeddings
+        result = self.model.create_embedding(input)
+        return [item['embedding'] for item in result['data']]
 
     @staticmethod
     def name() -> str:
@@ -73,8 +73,8 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
         return dict(model=self.model)
 
     @staticmethod
-    def build_from_config(config: Dict[str, Any]) -> "EmbeddingFunction":
-        return MyEmbeddingFunction(config['model'])
+    def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
+        return LlamaCppEmbeddingFunction(config['model'])
 
 
 
@@ -90,7 +90,7 @@ print(len(all_test_embeddings))
 client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
-    embedding_function=LlamaCppEmbeddingFunction,
+    embedding_function=LlamaCppEmbeddingFunction(model=llm),
     metadata={
         "description": "A test collection for learning ChromaDB",
         "created": str(datetime.now())
