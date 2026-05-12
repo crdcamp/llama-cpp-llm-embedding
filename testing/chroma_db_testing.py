@@ -4,6 +4,7 @@ from llama_cpp import Llama
 import time
 import chromadb
 import itertools
+from datetime import datetime
 
 # %% Model
 context_window = 2048
@@ -57,6 +58,10 @@ client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
     embedding_function=None,
+    metadata={
+        "description": "A test collection for learning ChromaDB",
+        "created": str(datetime.now())
+    },
     # More info on configuration: https://docs.trychroma.com/docs/collections/configure#what-is-an-hnsw-index
     configuration={
         "hnsw": {
