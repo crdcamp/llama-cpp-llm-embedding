@@ -45,6 +45,9 @@ print(type(test_embedding))
 for key, value in test_embedding.items():
     print(key)
 
+# %% Custom embedding function
+# Start here: https://docs.trychroma.com/docs/embeddings/embedding-functions#custom-embedding-functions
+
 # %%
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
 # Flatten list (was a nested list before)
@@ -84,6 +87,13 @@ all_collection_results = client.list_collections()
 print(collection_result)
 print(all_collection_results)
 
+"""
+Since ChromaDB will use the collection's embedding function (https://docs.trychroma.com/docs/querying-collections/query-and-get#query),
+this is likely an incorrect implementation.
+
+With your embed function defined as `None`. this probably isn't
+working correctly...
+"""
 collection.query(
     query_texts=["The meaning of a vector database"]
 )
