@@ -11,10 +11,11 @@ from chromadb.utils.embedding_functions import register_embedding_function
 import itertools
 from datetime import datetime
 
-# %% Model
+# %% Model Params
 context_window = 2048
 model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
 
+# %% Load Model
 llm = Llama(
     model_path="../models/Qwen3-Embedding-8B-Q6_K.gguf",
     embedding=True,
@@ -23,6 +24,7 @@ llm = Llama(
     n_batch=context_window # Need to double check if this is a good idea... Probably not a good idea...
 )
 
+# %% Custom embedding function for llama cpp
 @register_embedding_function
 class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
@@ -36,12 +38,11 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
     @staticmethod
     def name() -> str:
-        return "llama-cpp-ef"
+        return "my-ef"
 
     def get_config(self) -> Dict[str, Any]:
         return dict(model_path=self.model_path)
 
-    # This needs to be double checked
     @staticmethod
     def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
         model = Llama(model_path=config['model_path'], embedding=True)
@@ -68,11 +69,16 @@ collection = client.get_or_create_collection(
     }
 )
 
-# %% Insert embeddings into ChromaDB
+# %% Create some test text to pass to the db
+test_file = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
+with open(test_file, 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# %% Insert test file embeddings into ChromaDB
 collection.add(
     ids=["id1"], # Replace this with a uuid later: https://www.youtube.com/watch?v=yvsmkx-Jaj0&t=318s
-    embeddings=all_test_embeddings,
-    metadatas=[{"document": f"{test_doc}"}],
+    documents=[text],
+    metadatas=[{"source": test_file}],
 )
 
 # %% Inspect and query
