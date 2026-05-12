@@ -53,19 +53,23 @@ print(all_test_embeddings)
 # %% Initialize ChromaDB
 # We'll use PesistentClient outside of testing
 # https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
-client = chromadb.EphemeralClient()
+client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="test-collection",
+    embedding_function=None,
+    # More info on configuration: https://docs.trychroma.com/docs/collections/configure#what-is-an-hnsw-index
     configuration={
         "hnsw": {
-            "space": "cosine"
+            "space": "cosine",
+            "ef_construction": 100, # 100 is the default value
+            "ef_search": 100, # 100 is the default value
         }
     }
 )
 
 # %% Figure out how to insert embeddings into ChromaDB
 collection.add(
-    ids=["id1"],
+    ids=["id1"], # Replace this wit uuid later: https://www.youtube.com/watch?v=yvsmkx-Jaj0&t=318s
     embeddings=all_test_embeddings,
     metadatas=[{"document": f"{test_doc}"}],
 )
