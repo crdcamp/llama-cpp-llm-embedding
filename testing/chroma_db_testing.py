@@ -49,15 +49,17 @@ for key, value in test_embedding.items():
 
 # %%
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
-print(all_test_embeddings)
-# %% Figure out how to insert embeddings into ChromaDB
+print(type(all_test_embeddings))
 
 # %% Initialize ChromaDB
 test_db_path = "test_db"
 os.makedirs(test_db_path, exist_ok=True)
 
-my_ef = MyEmbeddingFunction(model=llm, context_window=context_window)
 client = chromadb.PersistentClient(path=test_db_path)
-collection = client.get_or_create_collection(
-    name="test-database",
-    embedding_function=my_ef)
+collection = client.get_or_create_collection(name="test-database")
+
+# %% Figure out how to insert embeddings into ChromaDB
+collection.add(
+    ids=["id1"],
+    embeddings=all_test_embeddings,
+)
