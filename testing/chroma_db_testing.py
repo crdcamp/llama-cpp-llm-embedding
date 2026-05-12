@@ -1,14 +1,9 @@
 # %% Imports
-import os
-from pyexpat import model
 from llama_cpp import Llama
-import time
 import chromadb
-import numpy as np
 from typing import Dict, Any
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from chromadb.utils.embedding_functions import register_embedding_function
-import itertools
 from datetime import datetime
 
 # %% Model Params
@@ -87,6 +82,9 @@ all_collection_results = client.list_collections()
 print(collection_result)
 print(all_collection_results)
 
-collection.query(
-    query_texts=["The meaning of a vector database"]
+results = collection.query(
+    query_texts=["The meaning of a vector database"],
+    n_results=1,
 )
+
+print(results)
