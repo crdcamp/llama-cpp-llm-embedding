@@ -60,7 +60,7 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
     def __init__(self, model, model_path: str):
         self.model = model
-        self.model_path = model_path  # store the path string separately for serialization
+        self.model_path = model_path
 
     def __call__(self, input: Documents) -> Embeddings:
         result = self.model.create_embedding(list(input))
@@ -68,17 +68,15 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
 
     @staticmethod
     def name() -> str:
-        return "my-ef"
+        return "llama-cpp-ef"
 
     def get_config(self) -> Dict[str, Any]:
-        return dict(model_path=self.model_path)  # return the string, not the Llama object
+        return dict(model_path=self.model_path)
 
     @staticmethod
     def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
         model = Llama(model_path=config['model_path'], embedding=True)
         return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
-
-
 
 # %%
 all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
@@ -120,17 +118,6 @@ all_collection_results = client.list_collections()
 print(collection_result)
 print(all_collection_results)
 
-"""
-Since ChromaDB will use the collection's embedding function (https://docs.trychroma.com/docs/querying-collections/query-and-get#query),
-this is likely an incorrect implementation.
-
-With your embed function defined as `None`. this probably isn't
-working correctly...
-"""
-
 collection.query(
     query_texts=["The meaning of a vector database"]
 )
-
-# %%
-collection.get(ids=["id1"])
