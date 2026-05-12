@@ -1,14 +1,12 @@
 # %% Imports
-from multiprocessing.sharedctypes import Value
 import os
-from posixpath import exists
 from llama_cpp import Llama
 import time
-import numpy as np
 import chromadb
 from typing import Dict, Any
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from chromadb.utils.embedding_functions import register_embedding_function
+from pydantic.type_adapter import P
 
 # %% Model
 context_window = 2048
@@ -40,34 +38,21 @@ def embed_file(file: str, context_window: int):
 
             return embeddings
 
-# %% Chromadb
-@register_embedding_function
-class MyEmbeddingFunction(EmbeddingFunction):
+# %% Test embedding
+test_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
+test_embedding = embed_file(test_doc, context_window=context_window)
 
-    def __init__(self, model, context_window: int):
-        self.model = model
-        self.context_window = context_window
+# %% Inspect and access only embeddings
+print(type(test_embedding))
+for key, value in test_embedding.items():
+    print(key)
 
-    def __call__(self, input: Documents) -> Embeddings:
-        results = []
-        for doc in input:
-            embedding = embed_file(doc, self.context_window)
-            if embedding is None:
-                raise ValueError(f"Failed to embed document: {doc}")
-            results.append(embedding["data"][0]["embedding"])
-        return results
+# %%
+all_test_embeddings = [item['embedding'] for item in test_embedding['data']]
+print(all_test_embeddings)
+# %% Figure out how to insert embeddings into ChromaDB
 
-    @staticmethod
-    def name() -> str:
-        return "my-ef"
-
-    def get_config(self) -> Dict[str, Any]:
-        return {"model": self.model, "context_window": self.context_window}
-
-    @staticmethod
-    def build_from_config(config: Dict[str, Any]) -> "EmbeddingFunction":
-        return MyEmbeddingFunction(config["model"], config["context_window"])
-
+# %% Initialize ChromaDB
 test_db_path = "test_db"
 os.makedirs(test_db_path, exist_ok=True)
 
@@ -76,8 +61,3 @@ client = chromadb.PersistentClient(path=test_db_path)
 collection = client.get_or_create_collection(
     name="test-database",
     embedding_function=my_ef)
-
-# %% Test doc
-test_doc = "../data/summary/httpsawsamazoncomwhatisvectordatabases.md"
-
-# %% Add to ChromaDB collection
