@@ -2,6 +2,7 @@
 from llama_cpp import Llama
 import chromadb
 from main import LlamaCppEmbeddingFunction
+import pprint
 
 """
 THIS NEEDS TO BE RESTRUCTURED.
@@ -14,6 +15,8 @@ llm = Llama(model_path=model_path, embedding=True, n_ctx=2048)
 
 # %%
 client = chromadb.PersistentClient(path="db")
+
+# %%
 collection = client.get_collection(
     name="test-collection",
     embedding_function=LlamaCppEmbeddingFunction(model=llm, model_path=model_path)
@@ -22,12 +25,17 @@ collection = client.get_collection(
 # %%
 results = collection.query(
     query_texts=["What are the uses of a Vector database?"],
-    n_results=2
+    include=["metadatas", "distances"],
+    n_results=10
 )
 
+print("KEYS:")
 for key, value in results.items():
     print(key)
+print()
 
-print(results['documents'])
+# %%
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(results)
 
 # %%

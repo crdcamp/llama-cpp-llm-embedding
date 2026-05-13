@@ -7,6 +7,16 @@ from chromadb.utils.embedding_functions import register_embedding_function
 from datetime import datetime
 import os
 
+"""
+USE THIS: https://docs.langchain.com/oss/python/integrations/splitters/split_html#using-htmlsemanticpreservingsplitter
+
+WE'LL ADJUST THIS SO WE DONT HAVE TO PUT ALL
+THIS IN A MAIN FUNCTION LATER
+
+Also I think the IDs in the db should be assigned
+as random numbers
+"""
+
 # %% Model Params
 context_window = 2048
 model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
