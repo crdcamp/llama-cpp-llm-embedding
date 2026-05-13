@@ -3,6 +3,11 @@ from llama_cpp import Llama
 import chromadb
 from main import LlamaCppEmbeddingFunction
 
+"""
+THIS NEEDS TO BE RESTRUCTURED.
+THE EMBEDDING CLASS SHOULD PROBABLY BE IN IT'S OWN FILE
+"""
+
 # %%
 model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
 llm = Llama(model_path=model_path, embedding=True, n_ctx=2048)
@@ -17,7 +22,7 @@ collection = client.get_collection(
 # %%
 results = collection.query(
     query_texts=["What are the uses of a Vector database?"],
-    n_results=1
+    n_results=2
 )
 
 for key, value in results.items():
