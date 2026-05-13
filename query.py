@@ -3,8 +3,10 @@ from llama_cpp import Llama
 import chromadb
 from main import LlamaCppEmbeddingFunction
 import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 """
+NEED TO ADD TEXT SPLITTER TO EMBED FUNCTION
 THIS NEEDS TO BE RESTRUCTURED.
 THE EMBEDDING CLASS SHOULD PROBABLY BE IN IT'S OWN FILE
 """
@@ -23,19 +25,14 @@ collection = client.get_collection(
 )
 
 # %%
+query = "What are the benefits of creating a Vector database?"
 results = collection.query(
-    query_texts=["What are the uses of a Vector database?"],
+    query_texts=[query],
     include=["metadatas", "distances"],
-    n_results=10
+    n_results=1
 )
 
-print("KEYS:")
-for key, value in results.items():
-    print(key)
-print()
-
 # %%
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(results)
+print(pp.pprint(results))
 
-# %%
+# %% Get the most similar document
