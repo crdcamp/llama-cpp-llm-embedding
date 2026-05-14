@@ -31,16 +31,3 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
     def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
         model = Llama(model_path=config['model_path'], embedding=True)
         return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
-
-client = chromadb.Client()
-collection = client.get_or_create_collection(
-    name="text-splitter-testing",
-    embedding_function=LlamaCppEmbeddingFunction,
-    configuration={
-        "hnsw": {
-            "space": "cosine", # Turns out we don't need that cosine function from earlier
-            "ef_construction": 100, # 100 is the default value
-            "ef_search": 100, # 100 is the default value
-        }
-    }
-)

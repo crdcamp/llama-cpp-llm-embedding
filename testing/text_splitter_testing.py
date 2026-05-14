@@ -5,7 +5,7 @@ import chromadb
 from test_embed import LlamaCppEmbeddingFunction
 
 # %% Model Params
-embed_model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
+embed_model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
 context_window = 2048
 verbose=True
 
@@ -31,14 +31,11 @@ text_splitter = RecursiveCharacterTextSplitter(
     is_separator_regex=False,
 )
 
-# %% Call Embed Function
-embed_fn =
-
 # %% In-Memory Chroma DB
 client = chromadb.Client()
 collection = client.get_or_create_collection(
     name="text-splitter-testing",
-    embedding_function=LlamaCppEmbeddingFunction,
+    embedding_function=LlamaCppEmbeddingFunction(model=embed_model, model_path=embed_model_path),
     configuration={
         "hnsw": {
             "space": "cosine", # Turns out we don't need that cosine function from earlier
