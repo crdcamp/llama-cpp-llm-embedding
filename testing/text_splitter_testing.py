@@ -2,6 +2,7 @@
 from llama_cpp import Llama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
+from datetime import datetime
 from test_embed import LlamaCppEmbeddingFunction
 
 # %% Single Test File
@@ -32,10 +33,14 @@ embed_model = Llama(
 )
 
 # %% In-Memory Chroma DB
-client = chromadb.Client()
+client = chromadb.PersistentClient(path="test_chromadb")
 collection = client.get_or_create_collection(
     name="text-splitter-testing",
     embedding_function=LlamaCppEmbeddingFunction(model=embed_model, model_path=embed_model_path),
+    metadata={
+        "description": "A test DB for trying out the text splitter function",
+        "created": str(datetime.now())
+    },
     configuration={
         "hnsw": {
             "space": "cosine", # Turns out we don't need that cosine function from earlier
