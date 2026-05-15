@@ -25,10 +25,15 @@ collection = client.get_collection(
 )
 
 # %% Query
-query = collection.query(
+query_results = collection.query(
     query_texts=["What are the main purposes for a vector database?"],
     n_results=10
 )
 
 pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(query)
+pp.pprint(query_results)
+
+# %%
+print(type(query_results))
+for key, vaklue in query_results.items():
+    print(key)
