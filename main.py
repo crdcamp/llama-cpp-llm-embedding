@@ -34,6 +34,7 @@ def get_or_create_collection(name: str, space: str, ef_construction: int, ef_sea
             "created": str(datetime.now())
         },
         # I still have to do some testing to figure out the best configuration here
+        # Parameters can be found here: https://docs.trychroma.com/docs/collections/configure#what-is-an-hnsw-index
         configuration={
             "hnsw": {
                 "space": space, # Turns out we don't need that cosine function from earlier
@@ -45,10 +46,12 @@ def get_or_create_collection(name: str, space: str, ef_construction: int, ef_sea
 
     return collection
 
-collection_distance_equations = ["l2", "ip", "cosine"]
-collection_names = ["l2-norm-method-collection", "ip-method-collection", "cosine-method-collection"]
-for equationn name in collection_distance_equations, collection_names:
-    get_or_create_collection()
+l2_collection  = get_or_create_collection("l2-norm-collection", "l2", 100, 100)
+inner_product_collection = get_or_create_collection("ip-collection", "ip", 100, 100)
+cosine_collection = get_or_create_collection("cosine-sim-collection", "cosine", 100, 100)
+
+collections_list = cosine_collection, l2_collection, cosine_collection`
+
 
 # %% Text Splitter
 text_splitter = RecursiveCharacterTextSplitter(
