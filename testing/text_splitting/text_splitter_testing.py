@@ -5,10 +5,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 from datetime import datetime
 from test_embed import LlamaCppEmbeddingFunction
-import pprint
 
 # %% Single Test File
-file = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
+file = "../../data/summary/httpsblogapifycomwhatisavectordatabase.md"
 with open(file, 'r', encoding='utf-8') as f:
     text = f.read()
     print(type(text))
@@ -22,7 +21,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 # %% Model Params
-embed_model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
+embed_model_path = "../../models/Qwen3-Embedding-8B-Q6_K.gguf"
 context_window = 2048
 verbose=True
 
