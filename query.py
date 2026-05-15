@@ -6,7 +6,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 """
-NEED TO ADD TEXT SPLITTER TO EMBED FUNCTION
+NEED TO ADD TEXT SPLITTER TO EMBED FUNCTION (or just make a text splitter somewhere)
 THIS NEEDS TO BE RESTRUCTURED.
 THE EMBEDDING CLASS SHOULD PROBABLY BE IN IT'S OWN FILE
 """

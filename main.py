@@ -1,9 +1,10 @@
 # %% Imports
 from llama_cpp import Llama
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 from typing import Dict, Any
-from chromadb import Documents, EmbeddingFunction, Embeddings
 from chromadb.utils.embedding_functions import register_embedding_function
+from chromadb import Documents, EmbeddingFunction, Embeddings
 from datetime import datetime
 import os
 
@@ -20,6 +21,14 @@ as random numbers
 # %% Model Params
 context_window = 2048
 model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
+
+# %% Text Splitter
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=300,
+    chunk_overlap=50,
+    length_function=len,
+    is_separator_regex=False,
+)
 
 # %% Custom embedding function for llama cpp
 @register_embedding_function
@@ -44,6 +53,7 @@ class LlamaCppEmbeddingFunction(EmbeddingFunction):
     def build_from_config(config: Dict[str, Any]) -> "LlamaCppEmbeddingFunction":
         model = Llama(model_path=config['model_path'], embedding=True)
         return LlamaCppEmbeddingFunction(model=model, model_path=config['model_path'])
+
 
 if __name__ == "__main__":
     # %% Load Model
