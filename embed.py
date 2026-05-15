@@ -3,7 +3,7 @@ from chromadb.utils.embedding_functions import register_embedding_function
 from typing import Dict, Any
 from chromadb import EmbeddingFunction, Documents, Embeddings
 
-# %%
+# %% Custom embedding function for llama.cpp Chroma DB integration
 @register_embedding_function
 class LlamaCppEmbeddingFunction(EmbeddingFunction):
     """
