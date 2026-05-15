@@ -8,7 +8,7 @@ import os
 import uuid
 
 # %% Model Params
-embed_model_path = "../../models/Qwen3-Embedding-8B-Q6_K.gguf"
+embed_model_path = "models/Qwen3-Embedding-8B-Q6_K.gguf"
 context_window = 2048
 verbose=True
 
@@ -25,7 +25,7 @@ db_path = "chromadb"
 os.makedirs(db_path, exist_ok=True)
 client = chromadb.PersistentClient(path=db_path)
 collection = client.get_or_create_collection(
-    name="RAG and Vector Databases",
+    name="vector-db",
     embedding_function=LlamaCppEmbeddingFunction(model=embed_model, model_path=embed_model_path),
     metadata={
         "description": "My first vector database for learning RAG retrieval",
@@ -44,12 +44,14 @@ collection = client.get_or_create_collection(
 # %% Text Splitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=300,
-    chunk_overlap=50,
+    chunk_overlap=30,
     length_function=len,
     is_separator_regex=False,
 )
 
 # %% Create embeddings for each file
+# I'm uncertain if this is a good way to setup the db,
+# but hey it's my first time
 documents_dir = "data/summary"
 for doc in os.listdir(documents_dir):
     doc_path = os.path.join(documents_dir, doc)
@@ -57,8 +59,9 @@ for doc in os.listdir(documents_dir):
         text = f.read()
         split_texts = text_splitter.split_text(text)
         for item in split_texts:
+            chunk_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_path}:{item}"))
             collection.upsert(
-                ids=[str(uuid.uuid4())],
+                ids=[chunk_id], # There might something better than UUIDs here, but we'll stick with them for now
                 documents=[item],
                 metadatas=[{"source": doc_path}]
             )

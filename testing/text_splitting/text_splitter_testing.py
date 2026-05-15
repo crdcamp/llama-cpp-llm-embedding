@@ -33,7 +33,7 @@ embed_model = Llama(
     verbose=verbose
 )
 
-# %% In-Memory Chroma DB
+# %% Chroma DB
 client = chromadb.PersistentClient(path="test_chromadb")
 collection = client.get_or_create_collection(
     name="text-splitter-testing",
