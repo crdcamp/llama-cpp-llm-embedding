@@ -3,7 +3,6 @@ from chromadb.utils.embedding_functions import register_embedding_function
 from typing import Dict, Any
 from chromadb import Documents, EmbeddingFunction, Embeddings
 from llama_cpp import Llama
-import chromadb
 
 # %%
 @register_embedding_function

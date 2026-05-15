@@ -1,9 +1,11 @@
 # %% Imports
 from llama_cpp import Llama
+import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 from datetime import datetime
 from test_embed import LlamaCppEmbeddingFunction
+import pprint
 
 # %% Single Test File
 file = "../data/summary/httpsblogapifycomwhatisavectordatabase.md"
@@ -57,7 +59,7 @@ print(type(split_texts))
 # %% Get split texts into ze database
 count = 0 # Temporary id naming convention. Will fix later
 for item in split_texts:
-    count += 0
+    count += 1
     collection.add(
         ids=[str(count)],
         documents=[item],
