@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 from datetime import datetime
 import os
+import uuid
 
 # %% Model Params
 embed_model_path = "../../models/Qwen3-Embedding-8B-Q6_K.gguf"
@@ -30,6 +31,7 @@ collection = client.get_or_create_collection(
         "description": "My first vector database for learning RAG retrieval",
         "created": str(datetime.now())
     },
+    # I still have to do some testing to figure out the best configuration here
     configuration={
         "hnsw": {
             "space": "cosine", # Turns out we don't need that cosine function from earlier
@@ -56,7 +58,7 @@ for doc in os.listdir(documents_dir):
         split_texts = text_splitter.split_text(text)
         for item in split_texts:
             collection.upsert(
-                ids=[],
-                documents=[text],
-                metadatas={"source": doc_path}
+                ids=[str(uuid.uuid4())],
+                documents=[item],
+                metadatas=[{"source": doc_path}]
             )
