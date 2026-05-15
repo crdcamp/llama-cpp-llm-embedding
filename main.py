@@ -63,5 +63,5 @@ for doc in os.listdir(documents_dir):
             collection.upsert(
                 ids=[chunk_id], # There might something better than UUIDs here, but we'll stick with them for now
                 documents=[item],
-                metadatas=[{"source": doc_path}]
+                metadatas=[{"source": doc_path, "created": str(datetime.now())}]
             )
