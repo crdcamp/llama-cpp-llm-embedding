@@ -24,22 +24,31 @@ embed_model = Llama(
 db_path = "chromadb"
 os.makedirs(db_path, exist_ok=True)
 client = chromadb.PersistentClient(path=db_path)
-collection = client.get_or_create_collection(
-    name="vector-db",
-    embedding_function=LlamaCppEmbeddingFunction(model=embed_model, model_path=embed_model_path),
-    metadata={
-        "description": "My first vector database for learning RAG retrieval",
-        "created": str(datetime.now())
-    },
-    # I still have to do some testing to figure out the best configuration here
-    configuration={
-        "hnsw": {
-            "space": "cosine", # Turns out we don't need that cosine function from earlier
-            "ef_construction": 100, # 100 is the default value
-            "ef_search": 100, # 100 is the default value
+
+def get_or_create_collection(name: str, space: str, ef_construction: int, ef_search: int):
+    collection = client.get_or_create_collection(
+        name=name,
+        embedding_function=LlamaCppEmbeddingFunction(model=embed_model, model_path=embed_model_path),
+        metadata={
+            "description": "My first vector database for learning RAG retrieval",
+            "created": str(datetime.now())
+        },
+        # I still have to do some testing to figure out the best configuration here
+        configuration={
+            "hnsw": {
+                "space": space, # Turns out we don't need that cosine function from earlier
+                "ef_construction": ef_construction, # 100 is the default value
+                "ef_search": ef_search, # 100 is the default value
+            }
         }
-    }
-)
+    )
+
+    return collection
+
+collection_distance_equations = ["l2", "ip", "cosine"]
+collection_names = ["l2-norm-method-collection", "ip-method-collection", "cosine-method-collection"]
+for equationn name in collection_distance_equations, collection_names:
+    get_or_create_collection()
 
 # %% Text Splitter
 text_splitter = RecursiveCharacterTextSplitter(
