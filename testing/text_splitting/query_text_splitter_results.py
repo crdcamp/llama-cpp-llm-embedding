@@ -5,7 +5,7 @@ from test_embed import LlamaCppEmbeddingFunction
 import pprint
 
 # %% Model Params
-embed_model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
+embed_model_path = "../../models/Qwen3-Embedding-8B-Q6_K.gguf"
 context_window = 2048
 verbose=True
 

@@ -6,7 +6,7 @@ import time
 import numpy as np
 
 # %% Test file
-test_file = "../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
+test_file = "../../data/summary/httpswwwdatabrickscomblogwhatisvectordatabase.md"
 
 # %% Model
 context_window = 20480
