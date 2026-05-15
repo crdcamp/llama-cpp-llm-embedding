@@ -18,11 +18,6 @@ text_splitter = RecursiveCharacterTextSplitter(
     is_separator_regex=False,
 )
 
-# %% Text splitter function testing
-split_texts = text_splitter.split_text(text)
-print(type(split_texts))
-print(split_texts)
-
 # %% Model Params
 embed_model_path = "../models/Qwen3-Embedding-8B-Q6_K.gguf"
 context_window = 2048
@@ -49,3 +44,19 @@ collection = client.get_or_create_collection(
         }
     }
 )
+
+# %% Text splitter testing
+split_texts = text_splitter.split_text(text)
+print(type(split_texts))
+
+# %% Get split texts into ze database
+count = 0 # Temporary id naming convention. Will fix later
+for item in split_texts:
+    count += 0
+    collection.add(
+        ids=[str(count)],
+        documents=[item],
+        metadatas=[{"source": file}]
+    )
+
+# %% Query results
