@@ -46,11 +46,11 @@ def get_or_create_collection(name: str, space: str, ef_construction: int, ef_sea
 
     return collection
 
-l2_collection  = get_or_create_collection("l2-norm-collection", "l2", 100, 100)
+l2_collection = get_or_create_collection("l2-norm-collection", "l2", 100, 100)
 inner_product_collection = get_or_create_collection("ip-collection", "ip", 100, 100)
 cosine_collection = get_or_create_collection("cosine-sim-collection", "cosine", 100, 100)
 
-collections_list = cosine_collection, l2_collection, cosine_collection`
+collections_list = [cosine_collection, l2_collection, cosine_collection]
 
 
 # %% Text Splitter
